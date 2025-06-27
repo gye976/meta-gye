@@ -1,0 +1,25 @@
+LICENSE = "CLOSED"
+
+DEPENDS:append = " qtbase wayland"
+
+SRC_URI = "file://cube.pro \ 
+           file://main.cpp \
+           file://mainwidget.cpp \
+           file://mainwidget.h \
+           file://mainwidget.h \
+           file://geometryengine.cpp \
+           file://geometryengine.h \
+           file://shaders.qrc \
+           file://textures.qrc \
+           file://vshader.glsl \
+           file://fshader.glsl \
+          "
+
+do_install:append () {
+        install -d ${D}${bindir}
+        install -m 0775 cube ${D}${bindir}
+}
+
+FILES_${PN}:append = "${bindir}/cube"
+
+inherit qt6-qmake
