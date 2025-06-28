@@ -2,9 +2,7 @@ LICENSE = "CLOSED"
 
 DEPENDS:append = " qtbase wayland"
 
-SRC_URI = "file://sources/ \ 
-          "
-
+SRC_URI = "file://sources"
 S = "${WORKDIR}/sources"
 
 do_install:append () {

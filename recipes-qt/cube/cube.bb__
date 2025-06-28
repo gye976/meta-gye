@@ -13,7 +13,10 @@ SRC_URI = "file://cube.pro \
            file://textures.qrc \
            file://vshader.glsl \
            file://fshader.glsl \
+           file://cube.png \
           "
+
+S = "${WORKDIR}"
 
 do_install:append () {
         install -d ${D}${bindir}
