@@ -15,6 +15,10 @@
 #include <QOpenGLShaderProgram>
 #include <QOpenGLTexture>
 
+extern "C" {
+  #include "mpu6050.h"
+}
+
 class GeometryEngine;
 
 class MainWidget : public QOpenGLWidget, protected QOpenGLFunctions
@@ -23,11 +27,12 @@ class MainWidget : public QOpenGLWidget, protected QOpenGLFunctions
 
 public:
     using QOpenGLWidget::QOpenGLWidget;
+    MainWidget();
     ~MainWidget();
 
 protected:
-    void mousePressEvent(QMouseEvent *e) override;
-    void mouseReleaseEvent(QMouseEvent *e) override;
+//    void mousePressEvent(QMouseEvent *e) override;
+//    void mouseReleaseEvent(QMouseEvent *e) override;
     void timerEvent(QTimerEvent *e) override;
 
     void initializeGL() override;
@@ -50,6 +55,8 @@ private:
     QVector3D rotationAxis;
     qreal angularSpeed = 0;
     QQuaternion rotation;
+
+    mpu6050_t mpu6050;
 };
 
 #endif // MAINWIDGET_H

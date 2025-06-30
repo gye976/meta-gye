@@ -7,6 +7,14 @@
 
 #include <cmath>
 
+MainWidget::MainWidget()
+{
+	int fd = mpu6050_init(&mpu6050);
+	if (fd < 0) {
+	}
+
+	mpu6050.dt = 0.001;
+}
 MainWidget::~MainWidget()
 {
     // Make sure the context is current when deleting the texture
@@ -18,50 +26,69 @@ MainWidget::~MainWidget()
 }
 
 //! [0]
-void MainWidget::mousePressEvent(QMouseEvent *e)
-{
-    // Save mouse press position
-    mousePressPosition = QVector2D(e->position());
-}
-
-void MainWidget::mouseReleaseEvent(QMouseEvent *e)
-{
-    // Mouse release position - mouse press position
-    QVector2D diff = QVector2D(e->position()) - mousePressPosition;
-
-    // Rotation axis is perpendicular to the mouse position difference
-    // vector
-    QVector3D n = QVector3D(diff.y(), diff.x(), 0.0).normalized();
-
-    // Accelerate angular speed relative to the length of the mouse sweep
-    qreal acc = diff.length() / 100.0;
-
-    // Calculate new rotation axis as weighted sum
-    rotationAxis = (rotationAxis * angularSpeed + n * acc).normalized();
-
-    // Increase angular speed
-    angularSpeed += acc;
-}
+// void MainWidget::mousePressEvent(QMouseEvent *e)
+// {
+//     // Save mouse press position
+//     mousePressPosition = QVector2D(e->position());
+// }
+//
+// void MainWidget::mouseReleaseEvent(QMouseEvent *e)
+// {
+//     // Mouse release position - mouse press position
+//     QVector2D diff = QVector2D(e->position()) - mousePressPosition;
+//
+//     // Rotation axis is perpendicular to the mouse position difference
+//     // vector
+//     QVector3D n = QVector3D(diff.y(), diff.x(), 0.0).normalized();
+//
+//     // Accelerate angular speed relative to the length of the mouse sweep
+//     qreal acc = diff.length() / 100.0;
+//
+//     // Calculate new rotation axis as weighted sum
+//     rotationAxis = (rotationAxis * angularSpeed + n * acc).normalized();
+//
+//     // Increase angular speed
+//     angularSpeed += acc;
+// }
 //! [0]
 
 //! [1]
+// void MainWidget::timerEvent(QTimerEvent *)
+// {
+//     // Decrease angular speed (friction)
+//     angularSpeed *= 0.99;
+//
+//     // Stop rotation when speed goes below threshold
+//     if (angularSpeed < 0.01) {
+//         angularSpeed = 0.0;
+//     } else {
+//         // Update rotation
+//         rotation = QQuaternion::fromAxisAndAngle(rotationAxis, angularSpeed) * rotation;
+//
+//         // Request an update
+//         update();
+//     }
+// }
+//! [1]
+
 void MainWidget::timerEvent(QTimerEvent *)
 {
-    // Decrease angular speed (friction)
-    angularSpeed *= 0.99;
+	mpu6050_calc_angle(&mpu6050);
 
-    // Stop rotation when speed goes below threshold
-    if (angularSpeed < 0.01) {
-        angularSpeed = 0.0;
-    } else {
-        // Update rotation
-        rotation = QQuaternion::fromAxisAndAngle(rotationAxis, angularSpeed) * rotation;
+	float roll_deg  = mpu6050.angle[0];
+	float pitch_deg = mpu6050.angle[1];
+	float yaw_deg   = mpu6050.angle[2];
+
+	QQuaternion q_roll  = QQuaternion::fromAxisAndAngle(1, 0, 0, roll_deg);
+	QQuaternion q_pitch = QQuaternion::fromAxisAndAngle(0, 1, 0, pitch_deg);
+	QQuaternion q_yaw   = QQuaternion::fromAxisAndAngle(0, 0, 1, yaw_deg);
+
+	// 회전 순서는 ZYX (요 → 피치 → 롤)이 일반적
+	rotation = q_yaw * q_pitch * q_roll;
 
         // Request an update
         update();
-    }
 }
-//! [1]
 
 void MainWidget::initializeGL()
 {

@@ -1,0 +1,11 @@
+[Unit]
+Description=Wi-Fi Setup Script
+After=network.target
+
+[Service]
+ExecStart=/usr/bin/wifi-setup.sh
+Type=oneshot
+RemainAfterExit=true
+
+[Install]
+WantedBy=multi-user.target
